@@ -66,13 +66,18 @@ class PantryCat:
             self.connection.rollback()
             return False
 
+    def get_recipes(self) -> list:
+        with self.connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM RECIPES")
+            return cursor.fetchall()
+
     def get_recipes_using(self, ingredient: str) -> list:
         with self.connection.cursor() as cursor:
             cursor.execute(
                 """
                            SELECT ingredient, amount, unit, notes, name, source FROM USES
                            JOIN RECIPES ON recipe = recipeID
-                           WHERE ingredient LIKE %s""",
+                           WHERE ingredient ILIKE %s""",
                 [f"%{ingredient}%"],
             )
             return cursor.fetchall()
@@ -88,5 +93,5 @@ class PantryCat:
 
 if __name__ == "__main__":
     pc = PantryCat(False)
-    pprint(pc.get_recipes_using("lime"))
+    pprint(pc.get_recipes_using("garlic"))
     pc.close()
